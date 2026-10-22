@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#6c4ce8">
+<title>رشدآموز</title>
+<style>
+:root{font-family:Tahoma,"Segoe UI",sans-serif;color:#272344;background:#f7f5ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#faf8ff,#f0f7ff 55%,#fff5fa);line-height:1.7}
+header{padding:18px;background:linear-gradient(110deg,#6c4ce8,#8b5cf6 58%,#d45bba);color:white}
+h1{font-size:23px;margin:0}header p{font-size:12px;margin:2px 0 0;color:#f2eaff}
+main{padding:14px;max-width:900px;margin:auto}.banner{background:#eee8ff;color:#49339b;border-radius:12px;padding:11px;font-size:12px;margin-bottom:12px}
+.login,.card{background:white;border:1px solid #e8e1fb;border-radius:18px;padding:16px;box-shadow:0 8px 25px #5b4a9410;margin-bottom:13px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1px solid #e0d8f6;border-radius:10px;margin:5px 0 10px;background:white;color:#272344}
+button{border:0;border-radius:10px;padding:10px 13px;background:#6c4ce8;color:white;cursor:pointer}
+button.secondary{background:#eee8ff;color:#563bb0}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tabs button{white-space:nowrap}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{padding:13px;border-radius:14px;background:#eee8ff}.stat:nth-child(2){background:#e5f9f0}.stat:nth-child(3){background:#fff1d7}.stat:nth-child(4){background:#ffe8f2}.stat b{display:block;font-size:23px}.muted{font-size:12px;color:#77718f}.page{display:none}.page.active{display:block}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.student{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #eee9f8}.student:last-child{border-bottom:0}.score{font-weight:bold;color:#6c4ce8;white-space:nowrap}.criterion{padding:12px 0;border-bottom:1px solid #eee9f8}.criterion h3{font-size:14px;margin:0}.criterion small{color:#77718f}.criterion input{max-width:100px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px;min-width:430px}td,th{text-align:right;padding:9px;border-bottom:1px solid #eee9f8}.notice{font-size:12px;color:#8a3c45;background:#fff0f1;padding:10px;border-radius:10px}
+@media(min-width:700px){main{padding:22px}.stats{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>✦ رشدآموز</h1><p>سامانه ارزیابی و کارنامه توصیفی دانش‌آموزان</p></header>
+<main>
+<div id="login" class="card">
+<h2>ورود مدیر آزمایشی</h2><p class="muted">شناسه موقت نسخه آزمایشی: admin</p>
+<label>شناسه مدیر</label><input id="adminId" autocomplete="off" placeholder="admin">
+<button onclick="login()">ورود به پنل</button><p id="loginError" class="muted"></p>
+</div>
+<div id="app" style="display:none">
+<div class="banner">نسخه آزمایشی آفلاین · اطلاعات پس از بستن برنامه ممکن است از بین بروند. برای اطلاعات واقعی دانش‌آموزان استفاده نکن.</div>
+<div class="stats">
+<div class="stat">دانش‌آموزان<b id="count">20</b></div>
+<div class="stat">میانگین امتیاز<b id="avg">—</b></div>
+<div class="stat">معیارها<b>۱۲</b></div>
+<div class="stat">حداکثر امتیاز<b>۱۰۰</b></div>
+</div>
+<div class="tabs">
+<button data-tab="dashboard">نمای کلی</button><button data-tab="evaluate">ارزیابی</button><button data-tab="students">دانش‌آموزان</button><button data-tab="ranking">رتبه‌بندی</button><button data-tab="report">کارنامه</button><button data-tab="parents">والدین</button>
+</div>
+<section id="dashboard" class="page active card"><h2>خوش آمدی 👋</h2><p>از بخش ارزیابی می‌توانی امتیاز هر معیار را ثبت کنی. امتیازهای اولیه فعلاً مستقل از معیارها نگه داشته شده‌اند.</p><div id="top"></div></section>
+<section id="evaluate" class="page card"><h2>ثبت ارزیابی</h2><label>دانش‌آموز</label><select id="evalStudent" onchange="renderEval()"></select><div id="criteria"></div><label>بازخورد مربی</label><textarea id="note" rows="3" placeholder="نقاط قوت و زمینه رشد"></textarea><button onclick="saveEval()">ذخیره ارزیابی</button><p id="evalMsg" class="muted"></p></section>
+<section id="students" class="page card"><h2>فهرست دانش‌آموزان</h2><div id="studentList"></div><hr><h3>افزودن دانش‌آموز</h3><input id="newName" placeholder="نام و نام خانوادگی"><input id="newCode" placeholder="شناسه"><button onclick="addStudent()">افزودن</button></section>
+<section id="ranking" class="page card"><h2>رتبه‌بندی کلاس (مدیر)</h2><div class="tablewrap"><table><thead><tr><th>رتبه</th><th>نام</th><th>شناسه</th><th>امتیاز</th></tr></thead><tbody id="ranks"></tbody></table></div></section>
+<section id="report" class="page card"><h2>کارنامه</h2><label>دانش‌آموز</label><select id="reportStudent" onchange="renderReport()"></select><div id="reportContent"></div><button onclick="window.print()">چاپ / ذخیره PDF</button></section>
+<section id="parents" class="page card"><h2>پرسش‌نامه والدین (نمونه مدیر)</h2><label>دانش‌آموز</label><select id="parentStudent"></select><p class="muted">این بخش هنوز ورود مستقل والدین ندارد؛ پاسخ‌ها در همین نمونه ثبت می‌شوند.</p><div id="parentQs"></div><textarea id="parentComment" placeholder="توضیحات والدین"></textarea><button onclick="saveParent()">ذخیره پاسخ نمونه</button><p id="parentMsg" class="muted"></p></section>
+</div>
+</main>
+<script>
+const criteria=[
+['مشارکت در گروه عشاق‌المهدی',6],['مسئولیت‌پذیری در مسئولیت‌های هیئت',14],['عمل‌کردن به توصیه‌های جلسات هیئت',10],['انجام به‌موقع تکالیف باشگاه نخبگان',10],['اهتمام به نماز',8],['شرکت در تجمعات و مناسبت‌ها',6],['مشارکت و پویایی در برنامه‌های هیئت',10],['ارائه پیشنهادهای سازنده',8],['رفتار مناسب در خانواده و اجتماع',10],['نظم، تمیزی و نظافت',5],['خودشناسی و پرورش استعدادها',8],['حفظ اتحاد و حمایت از گروه',5]];
+const seed=[['احسان هاشمی','1',46],['محمدرضا فرقانی','3',45],['محمدمهدی حاج مغانی','6',37],['سجاد هاشمی','2',32],['محمدطاها پاکدل','9',29],['امیرعلی حسن زاده','8',25],['پارسا علیمردانی','7',23],['امیرعباس احمدی','12',22],['سید محمدسبحانلو','5',20],['سیدجواد سبحانلو','4',19],['مهدی تاج','15',15],['مهدیار عباسی','14',15],['امیرحسین فرهمند','10',13],['حسین حسینی','11',12],['علی گوهری فر','16',12],['محمدحسین گوهری فر','17',12],['احسان نصیرایی','13',10],['امیرمحمد اصغرزاده','18',2],['مهدی هاشمی','19',1],['محمدجواد گلمکانی','بدون شناسه',0]];
+let students=seed.map((x,i)=>({id:i+1,name:x[0],code:x[1],initial:x[2],scores:Array(12).fill(0),evaluated:false,note:'',answers:[],comment:''}));
+const qs=['آیا فرزندتان مسئولیت‌های شخصی را پیگیری می‌کند؟','آیا در خانه به دیگران احترام می‌گذارد؟','آیا برای رشد یک مهارت وقت می‌گذارد؟'];let nextId=21;
+const $=id=>document.getElementById(id),total=s=>s.evaluated?s.scores.reduce((a,b)=>a+b,0):s.initial;
+function login(){if($('adminId').value.trim()==='admin'){$('login').style.display='none';$('app').style.display='block';init()}else $('loginError').textContent='شناسه آزمایشی نادرست است؛ admin را وارد کن.'}
+function ranked(){return [...students].sort((a,b)=>total(b)-total(a)||a.id-b.id)}
+function fillSelect(id){let el=$(id),old=el.value;el.innerHTML=students.map(s=>`<option value="${s.id}">${s.name} · ${s.code}</option>`).join('');el.value=students.some(s=>String(s.id)===old)?old:String(students[0].id)}
+function init(){['evalStudent','reportStudent','parentStudent'].forEach(fillSelect);renderAll()}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(b.dataset.tab).classList.add('active');document.querySelectorAll('[data-tab]').forEach(x=>x.style.opacity=x===b?'1':'.75');if(b.dataset.tab==='evaluate')renderEval();if(b.dataset.tab==='report')renderReport();if(b.dataset.tab==='parents')renderParents()});
+function renderAll(){$('count').textContent=students.length;$('avg').textContent=Math.round(students.reduce((a,s)=>a+total(s),0)/students.length);$('top').innerHTML=ranked().slice(0,5).map((s,i)=>`<div class="student"><span>${i+1}. ${s.name}</span><span class="score">${total(s)} امتیاز</span></div>`).join('');$('studentList').innerHTML=ranked().map(s=>`<div class="student"><span>${s.name}<small> · ${s.code}</small></span><span class="score">${total(s)}</span></div>`).join('');$('ranks').innerHTML=ranked().map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${s.code}</td><td>${total(s)}</td></tr>`).join('');renderEval();renderReport();renderParents()}
+function renderEval(){let s=students.find(x=>x.id===Number($('evalStudent').value))||students[0];$('criteria').innerHTML=criteria.map((c,i)=>`<div class="criterion"><h3>${i+1}. ${c[0]} <small>سقف ${c[1]}</small></h3><input type="number" min="0" max="${c[1]}" id="score${i}" value="${s.scores[i]}"></div>`).join('');$('note').value=s.note||''}
+function saveEval(){let s=students.find(x=>x.id===Number($('evalStudent').value));s.scores=criteria.map((c,i)=>Math.max(0,Math.min(c[1],Number($('score'+i).value)||0)));s.evaluated=true;s.note=$('note').value;renderAll();$('evalStudent').value=s.id;$('evalMsg').textContent='ارزیابی در همین نشست ثبت شد؛ مجموع جدید جایگزین امتیاز اولیه می‌شود.'}
+function renderReport(){let s=students.find(x=>x.id===Number($('reportStudent').value))||students[0],r=ranked().findIndex(x=>x.id===s.id)+1;$('reportContent').innerHTML=`<h3>${s.name}</h3><p>شناسه: ${s.code}</p><p><b>امتیاز:</b> ${total(s)} از ۱۰۰</p><p><b>رتبه شخصی:</b> ${r} از ${students.length}</p><h3>جزئیات معیارها</h3>${criteria.map((c,i)=>`<div class="student"><span>${c[0]}</span><span>${s.scores[i]} از ${c[1]}</span></div>`).join('')}<h3>بازخورد مربی</h3><p>${s.note||'بازخوردی ثبت نشده است.'}</p>`}
+function addStudent(){let name=$('newName').value.trim(),code=$('newCode').value.trim();if(!name||!code){alert('نام و شناسه را وارد کن.');return}if(students.some(s=>s.code.toLowerCase()===code.toLowerCase())){alert('شناسه تکراری است.');return}students.push({id:nextId++,name,code,initial:0,scores:Array(12).fill(0),evaluated:false,note:'',answers:[],comment:''});$('newName').value='';$('newCode').value='';['evalStudent','reportStudent','parentStudent'].forEach(fillSelect);renderAll()}
+function renderParents(){let s=students.find(x=>x.id===Number($('parentStudent').value))||students[0];$('parentQs').innerHTML=qs.map((q,i)=>`<div class="criterion"><label>${q}</label><div class="row"><label><input type="radio" name="q${i}" value="بله" ${s.answers[i]==='بله'?'checked':''}> بله</label><label><input type="radio" name="q${i}" value="خیر" ${s.answers[i]==='خیر'?'checked':''}> خیر</label><label><input type="radio" name="q${i}" value="نامطمئن" ${s.answers[i]==='نامطمئن'?'checked':''}> مطمئن نیستم</label></div></div>`).join('');$('parentComment').value=s.comment||''}
+function saveParent(){let s=students.find(x=>x.id===Number($('parentStudent').value));s.answers=qs.map((q,i)=>document.querySelector(`input[name="q${i}"]:checked`)?.value||'');s.comment=$('parentComment').value;$('parentMsg').textContent='پاسخ نمونه ثبت شد.'}
+$('parentStudent').addEventListener('change',renderParents);$('reportStudent').addEventListener('change',renderReport);
+</script>
+</body></html>
